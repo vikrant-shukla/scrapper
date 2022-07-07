@@ -37,7 +37,6 @@ def scrapdata():
         h = s.findAll("div", attrs={"class": "fixed-table-body card-table"})
         main_list = []
         for index, data in enumerate(h):
-            j = 0
             to_be_iterate = data.find("div").findAll("div", attrs={"class": "card-view"})
             to_be_added = {}
             to_be_added_with_reg = {}
@@ -79,8 +78,21 @@ def scrapCreation():
 
     return {"msg": "data created successfully"}
 
+
 def scrapperdetails(id: str):
     """get the data from database"""
     data = ScrapperModel.getdetails(id=id)
-    data_dict = copy.deepcopy(data.__dict__)
-    return ScrapperSerializer(**data_dict)
+    address = (data.Address).split(",")
+    d = {}
+    for i in range(len(address)):
+        d[i] = address[i]
+
+    response = {}
+    response[data.registration_id] = {
+        "name": data.Name,
+        "Address": {"addressNested": d},
+        # "Address": {"addressNested": [i for i in address]},
+        "Correspondence_Address": data.Correspondence_Address,
+        "Validity": data.Validity
+    }
+    return ScrapperSerializer(data=response)
