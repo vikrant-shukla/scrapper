@@ -68,7 +68,7 @@ def scrapCreation():
                 "registration_id": dict_data,
                 "Name": data.get(dict_data).get("Name") if data.get(dict_data) else None,
                 "Address": data.get(dict_data).get("Address") if data.get(dict_data) else None,
-                "Correspondence_Address": data.get(dict_data).get("Correspondence_Address") if data.get(
+                "Correspondence_Address": data.get(dict_data).get("Correspondence Address") if data.get(
                     dict_data) else None,
                 "Validity": data.get(dict_data).get("Validity") if data.get(dict_data) else None,
 
@@ -82,17 +82,43 @@ def scrapCreation():
 def scrapperdetails(id: str):
     """get the data from database"""
     data = ScrapperModel.getdetails(id=id)
-    address = (data.Address).split(",")
-    d = {}
-    for i in range(len(address)):
-        d[i] = address[i]
+    try:
+        if data.Address:
+            address = (data.Address).split(",")
+
+            Add = {}
+            k = 1
+            for i in range(len(address)):
+                if address[i] == "":
+                    pass
+                else:
+                    Add[k] = address[i]
+                    k += 1
+        else:
+            Add = None
+
+        if data.Correspondence_Address:
+            Correspondence_Address = (data.Correspondence_Address).split(",")
+
+            corrAdd = {}
+            y = 1
+            for i in range(len(Correspondence_Address)):
+                if Correspondence_Address[i] == "":
+                    pass
+                else:
+                    corrAdd[y] = Correspondence_Address[i]
+                    y += 1
+        else:
+            corrAdd = None
+    except:
+        pass
 
     response = {}
     response[data.registration_id] = {
-        "name": data.Name,
-        "Address": {"addressNested": d},
+        "name": data.Name if data.Name else None,
+        "Address": {"addressNested": Add},
         # "Address": {"addressNested": [i for i in address]},
-        "Correspondence_Address": data.Correspondence_Address,
-        "Validity": data.Validity
+        "Correspondence_Address": {"addressNested": corrAdd},
+        "Validity": data.Validity if data.Validity else None
     }
     return ScrapperSerializer(data=response)
